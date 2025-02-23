@@ -17,7 +17,7 @@ export default {
   methods: {
     async fetchUserData() {
       try {
-        // Aquí se hace la llamada a la API para obtener los datos del usuario
+        // Hacemos la llamada a la API para obtener los datos del usuario
         const response = await fetch(
           "https://api7.cloudframework.io/recruitment/fullstack/users?id=1",
           {

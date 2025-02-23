@@ -81,11 +81,20 @@ export default {
   },
   methods: {
     async fetchUserData() {
+      const id = this.$route.params.id;
+
+      if (id !== "1" && id !== "2") {
+        this.error = true;
+        return;
+      }
+
       try {
         const response = await fetch(
-          "https://api7.cloudframework.io/recruitment/fullstack/users?id=1",
+          `https://api7.cloudframework.io/recruitment/fullstack/users?id=${id}`,
           {
-            headers: { "X-WEB-KEY": "Development" },
+            headers: {
+              "X-WEB-KEY": "Development",
+            },
           }
         );
         const data = await response.json();
@@ -97,22 +106,46 @@ export default {
         }
       } catch (error) {
         this.error = true;
-        console.error("Error al obtener los datos:", error);
       }
     },
     submitForm() {
-      const loanSummaryData = {
-        name: this.user.name,
-        surname: this.user.surname,
-        email: this.user.email,
-        phone: this.user.phone,
-        age: this.user.age,
-        loanAmount: this.loanAmount,
-        loanDate: this.loanDate,
-        loanWeeks: this.loanWeeks,
+      // Enviar los datos al endpoint
+      const formData = {
+        phone: this.phone,
+        age: this.age,
+        loan_amount: this.loanAmount,
+        loan_date: this.loanDate,
+        loan_weeks: this.loanWeeks,
       };
 
-      this.$router.push({ name: "LoanSummary", query: loanSummaryData });
+      fetch(
+        `https://api7.cloudframework.io/recruitment/fullstack/users/${this.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-WEB-KEY": "Development",
+          },
+          body: JSON.stringify(formData),
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 201) {
+            this.$router.push({
+              name: "LoanSummary",
+              query: {
+                ...formData,
+                name: this.user.name,
+                surname: this.user.surname,
+                email: this.user.email,
+              },
+            });
+          } else {
+            this.$router.push("/error");
+          }
+        })
+        .catch(() => this.$router.push("/error"));
     },
   },
   mounted() {
@@ -192,6 +225,18 @@ input[readonly] {
 
 .checkbox-group input {
   width: auto;
+}
+
+/* Estilo para el mensaje de error */
+.error-message p {
+  color: red;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #ffe6e6;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 /* Botón */
